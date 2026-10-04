@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Alchemist — What Would You Do?</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f0e6;color:#222}
+main{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}
+.card{width:min(900px,96vw);min-height:540px;background:#fff;border:2px solid #222;border-radius:10px;padding:48px;box-shadow:7px 7px 0 #222;display:flex;flex-direction:column;justify-content:center}
+h1{font-size:52px;margin:0 0 10px}.sub{font-size:27px;margin:0 0 28px}.names{margin-bottom:45px;color:#555}
+.kicker{font-size:14px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#766044;margin-bottom:12px}
+h2{font-size:34px;line-height:1.15;margin:0 0 28px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+button{font:inherit;cursor:pointer;border:2px solid #222;border-radius:7px;background:#fff;padding:18px;font-weight:bold}
+button:hover{background:#eee8dc}
+.primary{background:#222;color:#fff;align-self:flex-start;padding:15px 30px}
+.primary:hover{background:#444}
+.option{text-align:left;min-height:110px;font-size:18px}
+.option.selected{background:#eee8dc}
+.reveal{display:none;margin-top:28px;border-top:1px solid #bbb;padding-top:22px;line-height:1.55;font-size:18px}
+.reveal.show{display:block}
+.analysis{background:#f5f0e6;padding:16px;border-radius:6px;margin-top:14px}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:28px}
+.progress{font-size:14px;color:#666}
+.small{font-size:16px;color:#555;line-height:1.5}
+.finalq{font-size:24px;font-weight:bold;margin:24px 0}
+@media(max-width:650px){.card{padding:28px;min-height:620px}h1{font-size:40px}h2{font-size:28px}.options{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main><section class="card" id="card"></section></main>
+<script>
+const rounds=[
+{
+q:"You're halfway through college and realize you don't actually want the career you're studying for. What do you do?",
+a:"Finish the degree. You've already come this far.",
+b:"Change paths, even if it sets you back.",
+connection:"Santiago already has a comfortable life as a shepherd, but he leaves it to chase his dream.",
+ask:"Is leaving a stable life courageous, or irresponsible?"
+},
+{
+q:"You take a big risk on something you really want — and it goes badly. What now?",
+a:"Cut your losses and go back to what was working.",
+b:"Figure out what went wrong and keep going.",
+connection:"Santiago gets robbed in Tangier, but instead of giving up, he works at the crystal shop and keeps going.",
+ask:"At what point does persistence become recklessness?"
+},
+{
+q:"You get offered a safe job with decent money, but taking it probably means giving up the bigger goal you've had for years.",
+a:"Take the safe option.",
+b:"Turn it down and keep chasing the bigger goal.",
+connection:"The Crystal Merchant dreams of going to Mecca, but he is too afraid to actually do it. He chooses comfort instead.",
+ask:"Is the Crystal Merchant making the wrong choice, or just a realistic one?"
+},
+{
+q:"There's no guarantee your biggest goal will work out. You could spend years on it and fail. Does that change whether you should try?",
+a:"Yes. Some risks aren't worth taking.",
+b:"No. Not trying would be worse.",
+connection:"Santiago keeps chasing his Personal Legend even though he doesn't know if it will work out.",
+ask:"Does the novel make a convincing argument for following your dream?"
+}
+];
+let page=-1, choices=[];
+function render(){
+ const c=document.getElementById('card');
+ if(page===-1){
+  c.innerHTML=`<h1>The Alchemist</h1><div class="sub">What Would You Do?</div><div class="names">Ryker • Steve • Itay</div><button class="primary" onclick="page=0;render()">Start</button>`;
+  return;
+ }
+ if(page<rounds.length){
+  const r=rounds[page];
+  c.innerHTML=`<div class="kicker">Situation ${page+1}</div><h2>${r.q}</h2>
+  <div class="options">
+   <button class="option" onclick="pick(0,this)"><b>A</b><br><br>${r.a}</button>
+   <button class="option" onclick="pick(1,this)"><b>B</b><br><br>${r.b}</button>
+  </div>
+  <div class="reveal" id="reveal"><b>Connection to <i>The Alchemist</i></b><div class="analysis">${r.connection}</div><div class="finalq">${r.ask}</div></div>
+  <div class="nav"><span class="progress">${page+1} / ${rounds.length}</span><button id="next" style="display:none" onclick="page++;render()">${page===rounds.length-1?'Finish':'Next →'}</button></div>`;
+  return;
+ }
+ const b=choices.filter(x=>x===1).length;
+ let title,desc;
+ if(b===4){title="🏆 THE ALCHEMIST";desc="You’re all-in. You’d rather risk comfort for the bigger goal than always wonder what could’ve happened.";}
+ else if(b===3){title="🔥 THE DREAM CHASER";desc="You’ll take the risk when the goal matters enough. You’re a lot closer to Santiago than the Crystal Merchant.";}
+ else if(b===2){title="⚖️ THE REALIST";desc="You believe in chasing goals, but not at any cost. You balance the dream with what could actually go wrong.";}
+ else{title="🏪 THE CRYSTAL MERCHANT";desc="You value stability more than uncertainty. That isn’t necessarily wrong — but it’s exactly the choice Coelho challenges in the novel.";}
+ c.innerHTML=`<div class="kicker">Your Result</div><h2>${title}</h2>
+ <div class="analysis" style="font-size:20px">${desc}</div>
+ <p class="small" style="margin-top:18px">You chose the riskier path <b>${b} out of ${rounds.length}</b> times.</p>
+ <div class="finalq">Which result did you get?</div>
+ <p class="small">Raise your hand when we call yours.<br><br><b>Which result do you think Coelho would say is the best way to live?</b></p>
+ <button onclick="page=-1;choices=[];render()">Play Again</button>`;
+}
+function pick(v,el){
+ choices[page]=v;
+ document.querySelectorAll('.option').forEach(x=>x.classList.remove('selected'));
+ el.classList.add('selected');
+ document.getElementById('reveal').classList.add('show');
+ document.getElementById('next').style.display='block';
+}
+render();
+</script>
+</body></html>
